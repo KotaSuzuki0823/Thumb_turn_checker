@@ -1,0 +1,2 @@
+# Thumb_turn_checker
+ドアのサムターンを監視しLINEで通知
