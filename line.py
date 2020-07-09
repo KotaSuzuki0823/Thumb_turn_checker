@@ -7,7 +7,7 @@ from linebot.exceptions import (
     InvalidSignatureError
 )
 from linebot.models import (
-    MessageEvent, TextMessage, TextSendMessage, ImageSendMessage,
+    MessageEvent, TextMessage, TextSendMessage, ImageSendMessage, ImageMessage
 )
 
 import requests
@@ -18,15 +18,13 @@ import json
 from _datetime import datetime
 
 URL = "https://api.line.me/v2/bot/message/multicast"
-TOKEN = ''
-HEADERS = {'Authorization': 'Bearer ' + TOKEN}
-
 app = Flask(__name__)
 
 # 環境変数取得
 # アクセストークンとChannel Secretをを取得し、設定
-LINE_BOT_CHANNEL_TOKEN = os.environ["LINE_BOT_CHANNEL_TOKEN"]
-LINE_BOT_CHANNEL_SECRET = os.environ["LINE_BOT_CHANNEL_SECRET"]
+LINE_BOT_CHANNEL_TOKEN = os.environ["7ijEZas9WAL1WoBM5B2dq4qPdkJv0rfvwuRP81p4yNjrkcDh4gxHwcoFKg1F9GrdZbE+f+3C+tcRDUg49AQkqKcEu9uRo/3GQyFtQpyqbJLUifZ83Ox3VAyh+wiS6IjwoBAc6TkpE1LqRbJbZIGCNQdB04t89/1O/w1cDnyilFU="]
+LINE_BOT_CHANNEL_SECRET = os.environ["f714fbfa5ee9e63e85b8a1c635469ec5"]
+HEADERS = {'Authorization': 'Bearer ' + LINE_BOT_CHANNEL_TOKEN}
 
 line_bot_api = LineBotApi(LINE_BOT_CHANNEL_TOKEN)
 handler = WebhookHandler(LINE_BOT_CHANNEL_SECRET)
@@ -51,7 +49,6 @@ def callback():
     # handleの処理を終えればOK
     return 'OK'
 
-
 ## 2 ##
 ###############################################
 # LINEのメッセージの取得と返信内容の設定
@@ -70,23 +67,41 @@ def replyMessageText(event, message):
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    getMessage = event.message.text;  # ユーザが送信したメッセージ(event.message.text)を取得
+    getMessage = event.message.text  # ユーザが送信したメッセージ(event.message.text)を取得
 
     if getMessage == '写真':
-        message = '写真を送るね'
+        message = '写真を送りますわ．'
         replyMessageText(event, message)
 
     else :
         message = 'あなたの家の鍵の状態を確認しますわ．'
         replyMessageText(event, message)
+        #handle_image(event)
 
+
+@handler.add(MessageEvent, message=ImageMessage)
+def handle_image(event):
+    ...
+    main_image_path = f"images/photo.jpg"
+    #preview_image_path = f"static/images/{message_id}_preview.jpg"
+
+    # 画像の送信
+    image_message = ImageSendMessage(
+        original_content_url=f"https://date-the-image.herokuapp.com/{main_image_path}",
+        #preview_image_url=f"https://date-the-image.herokuapp.com/{preview_image_path}",
+    )
+
+    line_bot_api.reply_message(event.reply_token, image_message)
+
+'''
 def sendMessageTest(msg):
     payload = {'message': msg}
     r = requests.post(URL, headers=HEADERS, params=payload)
+'''
 
 # ポート番号の設定
 if __name__ == "__main__":
-    #    app.run()
+    #app.run()
     port = int(os.getenv("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
 
