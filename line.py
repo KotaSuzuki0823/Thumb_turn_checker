@@ -89,7 +89,7 @@ def replyImage(event):
 
     # 画像の送信
     image_message = ImageSendMessage(
-        original_content_url=f"https://date-the-image.herokuapp.com/{main_image_path}",
+        original_content_url=f"https://thumbtuenphoto.blob.core.windows.net/raspberrypi-camera/test.JPG",
         #preview_image_url=f"https://date-the-image.herokuapp.com/{preview_image_path}",
     )
 

@@ -20,8 +20,8 @@ Azure Iot Hub 接続用関数
 async def store_blob(blob_info, file_name):
     try:
         sas_url = "https://{}/{}/{}{}".format(
-            blob_info["hostName"],
-            blob_info["containerName"],
+            blob_info["RaspberryPi-Camera.azure-devices.net"],
+            blob_info["raspberrypi-camera"],
             blob_info["blobName"],
             blob_info["sasToken"]
         )
