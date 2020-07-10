@@ -10,7 +10,7 @@ from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage, ImageSendMessage, ImageMessage
 )
 
-import requests
+import sys
 import os
 import urllib
 import math
@@ -22,37 +22,34 @@ app = Flask(__name__)
 
 # 環境変数取得
 # アクセストークンとChannel Secretをを取得し、設定
-LINE_BOT_CHANNEL_TOKEN = os.environ["7ijEZas9WAL1WoBM5B2dq4qPdkJv0rfvwuRP81p4yNjrkcDh4gxHwcoFKg1F9GrdZbE+f+3C+tcRDUg49AQkqKcEu9uRo/3GQyFtQpyqbJLUifZ83Ox3VAyh+wiS6IjwoBAc6TkpE1LqRbJbZIGCNQdB04t89/1O/w1cDnyilFU="]
-LINE_BOT_CHANNEL_SECRET = os.environ["f714fbfa5ee9e63e85b8a1c635469ec5"]
-HEADERS = {'Authorization': 'Bearer ' + LINE_BOT_CHANNEL_TOKEN}
 
-line_bot_api = LineBotApi(LINE_BOT_CHANNEL_TOKEN)
-handler = WebhookHandler(LINE_BOT_CHANNEL_SECRET)
+channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
+channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', None)
+if channel_secret is None:
+    print('Specify LINE_CHANNEL_SECRET as environment variable.')
+    sys.exit(1)
+if channel_access_token is None:
+    print('Specify LINE_CHANNEL_ACCESS_TOKEN as environment variable.')
+    sys.exit(1)
 
-## 1 ##
-# Webhookからのリクエストをチェックします。
+line_bot_api = LineBotApi(channel_access_token)
+handler = WebhookHandler(channel_secret)
+
+# Webhookからのリクエストをチェック
 @app.route("/callback", methods=['POST'])
 def callback():
-    # リクエストヘッダーから署名検証のための値を取得します。
     signature = request.headers['X-Line-Signature']
 
-    # リクエストボディを取得します。
     body = request.get_data(as_text=True)
     app.logger.info("Request body: " + body)
 
-    # 署名を検証し、問題なければhandleに定義されている関数を呼び出す。
+    #署名を検証
     try:
         handler.handle(body, signature)
-        # 署名検証で失敗した場合、例外を出す。
-    except InvalidSignatureError:
+    except InvalidSignatureError as e:
+        print(e)
         abort(400)
-    # handleの処理を終えればOK
     return 'OK'
-
-## 2 ##
-###############################################
-# LINEのメッセージの取得と返信内容の設定
-###############################################
 
 # LINEでMessageEvent（普通のメッセージを送信された場合）が起こった場合に、
 # def以下の関数を実行します。
@@ -63,7 +60,6 @@ def replyMessageText(event, message):
         event.reply_token,
         TextSendMessage(text=message)  # 返信メッセージ
     )
-
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
@@ -76,11 +72,11 @@ def handle_message(event):
     else :
         message = 'あなたの家の鍵の状態を確認しますわ．'
         replyMessageText(event, message)
-        #handle_image(event)
+        #replyImage(event)
 
-
-@handler.add(MessageEvent, message=ImageMessage)
-def handle_image(event):
+#画像の返信
+#@handler.add(MessageEvent, message=ImageMessage)
+def replyImage(event):
     ...
     main_image_path = f"images/photo.jpg"
     #preview_image_path = f"static/images/{message_id}_preview.jpg"
