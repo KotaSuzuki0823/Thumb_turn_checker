@@ -5,13 +5,13 @@ import subprocess
 import time
 import os
 import asyncio
-import schedule
+#import schedule
 from logscreen import screen 
 from azure.iot.device.aio import IoTHubDeviceClient
 from azure.core.exceptions import AzureError
 from azure.storage.blob import BlobClient
 
-CONNECTION_STRING = "[Device Connection String]"
+CONNECTION_STRING = "HostName=RaspberryPi-Camera.azure-devices.net;DeviceId=camera;SharedAccessKey=RjSAce0YtbpyEyQswSZiGL5btfspWBXfmj2/BM5iZWo="
 
 '''
 Azure Iot Hub 接続用関数
@@ -20,13 +20,13 @@ Azure Iot Hub 接続用関数
 async def store_blob(blob_info, file_name):
     try:
         sas_url = "https://{}/{}/{}{}".format(
-            blob_info["RaspberryPi-Camera.azure-devices.net"],
-            blob_info["raspberrypi-camera"],
+            blob_info["hostName"],
+            blob_info["containerName"],
             blob_info["blobName"],
             blob_info["sasToken"]
         )
 
-        screen.logOK("\nUploading file: {} to Azure Storage as blob: {} in container {}\n".format(file_name, blob_info["blobName"], blob_info["containerName"]))
+        screen.logOK("Uploading file: {} to Azure Storage as blob: {} in container {}\n".format(file_name, blob_info["blobName"], blob_info["containerName"]))
 
         # Upload the specified file
         with BlobClient.from_blob_url(sas_url) as blob_client:
@@ -50,10 +50,9 @@ async def connectAndUploadToAzure(imgPath):
         screen.logOK( "IoT Hub file upload." )
 
         conn_str = CONNECTION_STRING
-        blob_name = os.path.basename(imgPath)
 
         device_client = IoTHubDeviceClient.create_from_connection_string(conn_str)
-
+        blob_name = os.path.basename(imgPath)
         # Connect the client
         await device_client.connect()
 
@@ -64,9 +63,9 @@ async def connectAndUploadToAzure(imgPath):
         success, result = await store_blob(storage_info, imgPath)
 
         if success == True:
-            screen.logOK("Upload succeeded. Result is: \n") 
-            screen.logOK(result)
-            print()
+            screen.logOK("Upload succeeded. Result is: \n")
+            screen.logOK(" ")
+            print(result)
 
             await device_client.notify_blob_upload_status(
                 storage_info["correlationId"], True, 200, "OK: {}".format(imgPath)
@@ -75,15 +74,15 @@ async def connectAndUploadToAzure(imgPath):
         else :
             # If the upload was not successful, the result is the exception object
             screen.logFatal("Upload failed. Exception is: \n") 
-            screen.logFatal(result)
-            print()
+            screen.logFatal(" ")
+            print(result)
 
             await device_client.notify_blob_upload_status(
                 storage_info["correlationId"], False, result.status_code, str(result)
             )
 
-    except Exception as ex:
-        screen.logFatal(ex)
+    except Exception:
+        screen.logFatal("Exception(connectAndUploadToAzure)")
 
     finally:
         # Finally, disconnect the client
@@ -105,15 +104,19 @@ def getPhoto():
     return os.path.abspath("./photo.jpg")
 
 def main():
-    photopath = getPhoto()
-    connectAndUploadToAzure(photopath)
+    #photopath = getPhoto()
+    photopath = "./testimg.png"
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(connectAndUploadToAzure(photopath))
 
 
 if __name__ == "__main__":
     # 5分ごとに実行
+    main()
+    '''
     try:
         screen.logOK( "Running System, press Ctrl-C to exit" )
         schedule.every(5).minutes.do(main)
     except KeyboardInterrupt:
         screen.logFatal( "System stopped." )
-
+    '''
