@@ -2,10 +2,11 @@
 Need to use "sudo"
 '''
 import subprocess
-import time
+import datetime
 import os
 import asyncio
-#import schedule
+import schedule
+import time
 from logscreen import screen 
 from azure.iot.device.aio import IoTHubDeviceClient
 from azure.core.exceptions import AzureError
@@ -89,7 +90,6 @@ async def connectAndUploadToAzure(imgPath):
         await device_client.disconnect()
         screen.logOK("Disconnect the client")
 
-
 def getPhoto():
     cmd = ["raspistill", "-t", "3000", "-o", "photo.jpg"]
     screen.logOK("Run raspistill...")
@@ -104,19 +104,16 @@ def getPhoto():
     return os.path.abspath("./photo.jpg")
 
 def main():
-    #photopath = getPhoto()
-    photopath = "./testimg.png"
+    photopath = getPhoto()
+    #photopath = "./testimg.png"
     loop = asyncio.get_event_loop()
     loop.run_until_complete(connectAndUploadToAzure(photopath))
 
 
 if __name__ == "__main__":
     # 5分ごとに実行
-    main()
-    '''
     try:
         screen.logOK( "Running System, press Ctrl-C to exit" )
         schedule.every(5).minutes.do(main)
     except KeyboardInterrupt:
         screen.logFatal( "System stopped." )
-    '''

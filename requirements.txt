@@ -10,3 +10,10 @@ PySocks==1.7.1
 requests==2.24.0
 urllib3==1.25.9
 Werkzeug==1.0.1
+#Azure
+azure-core==1.6.0
+azure-iot-device==2.1.4
+azure-iot-nspkg==1.0.1
+azure-nspkg==3.0.2
+azure-storage-blob==12.3.2
+azure-storage-nspkg==3.1.0
