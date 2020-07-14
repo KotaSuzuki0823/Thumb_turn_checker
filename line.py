@@ -78,6 +78,15 @@ def handle_message(event):
     if getMessage == '写真':
         message = '写真を送りますわ．'
         replyMessageText(event, message)
+        replyImage(event)
+
+    elif getMessage == '状態':
+        state, pred = getCustomVision()
+        if state:
+            message = '鍵があいていますわ．('+pred+')'
+        else:
+            message = '鍵はしまっていますわ．('+pred+')'
+        replyMessageText(event, message)
 
     else :
         message = 'あなたの家の鍵の状態を確認しますわ．'
@@ -86,14 +95,14 @@ def handle_message(event):
 
 #画像の返信
 #@handler.add(MessageEvent, message=ImageMessage)
-def replyImage(event):
+def replyImage(event,imgpath=imgdefulturl):
     ...
     main_image_path = f"images/photo.jpg"
     #preview_image_path = f"static/images/{message_id}_preview.jpg"
 
     # 画像の送信
     image_message = ImageSendMessage(
-        original_content_url=f"https://thumbtuenphoto.blob.core.windows.net/raspberrypi-camera/test.JPG",
+        original_content_url=imgpath
         #preview_image_url=f"https://date-the-image.herokuapp.com/{preview_image_path}",
     )
 
@@ -112,10 +121,16 @@ def getCustomVision(imgurl=imgdefulturl):
     response.raise_for_status()
 
     analysis = response.json()
-    name, pred = analysis["predictions"][0]["tagName"], analysis["predictions"][0]["probability"]
-    print(name, pred)
-    name, pred = analysis["predictions"][1]["tagName"], analysis["predictions"][1]["probability"]
-    print(name, pred)
+    name1, pred1 = analysis["predictions"][0]["tagName"], analysis["predictions"][0]["probability"]
+    print(name1, pred1)
+    name2, pred2 = analysis["predictions"][1]["tagName"], analysis["predictions"][1]["probability"]
+    print(name2, pred2)
+
+    if pred1 >= pred2:
+        return True, pred1
+    else:
+        return False, pred1
+
 
 # ポート番号の設定
 if __name__ == "__main__":
