@@ -27,6 +27,8 @@ app = Flask(__name__)
 channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
 channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', None)
 prediction_key = os.getenv('PREDICTIONKEY', None)
+cvurl = os.getenv('CVURL', None)
+imgdefulturl = os.getenv('IMGURL', None)
 
 if channel_secret is None:
     print('Specify LINE_CHANNEL_SECRET as environment variable.')
@@ -97,9 +99,7 @@ def replyImage(event):
 
     line_bot_api.reply_message(event.reply_token, image_message)
 
-def getCustomVision(imgurl='https://thumbtuenphoto.blob.core.windows.net/raspberrypi-camera/IMG_8705.JPG?sp=rcw&st=2020-07-14T04:03:01Z&se=2021-01-01T12:03:01Z&spr=https&sv=2019-10-10&sr=b&sig=Nkz9MRtCDbTWiQrSGRe6Jzm0qj1ptWYItR0V3y17P%2F0%3D'):
-    cvurl = "https://thumbturncheck.cognitiveservices.azure.com/customvision/v3.0/Prediction/acb38c79-f3c8-48c1-ba65-e5118183d9e4/classify/iterations/openclosecheck/url"
-
+def getCustomVision(imgurl=imgdefulturl):
     headers = {
         'content-type': 'application/json',
         'Prediction-Key': prediction_key
