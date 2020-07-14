@@ -14,6 +14,7 @@ import sys
 import os
 import urllib
 import math
+import requests
 import json
 from _datetime import datetime
 
@@ -25,6 +26,7 @@ app = Flask(__name__)
 
 channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
 channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', None)
+prediction_key = os.getenv('PREDICTIONKEY', None)
 
 if channel_secret is None:
     print('Specify LINE_CHANNEL_SECRET as environment variable.')
@@ -95,11 +97,25 @@ def replyImage(event):
 
     line_bot_api.reply_message(event.reply_token, image_message)
 
-'''
-def sendMessageTest(msg):
-    payload = {'message': msg}
-    r = requests.post(URL, headers=HEADERS, params=payload)
-'''
+def getCustomVision(imgurl='https://thumbtuenphoto.blob.core.windows.net/raspberrypi-camera/IMG_8705.JPG?sp=rcw&st=2020-07-14T04:03:01Z&se=2021-01-01T12:03:01Z&spr=https&sv=2019-10-10&sr=b&sig=Nkz9MRtCDbTWiQrSGRe6Jzm0qj1ptWYItR0V3y17P%2F0%3D'):
+    cvurl = "https://thumbturncheck.cognitiveservices.azure.com/customvision/v3.0/Prediction/acb38c79-f3c8-48c1-ba65-e5118183d9e4/classify/iterations/openclosecheck/url"
+
+    headers = {
+        'content-type': 'application/json',
+        'Prediction-Key': prediction_key
+    }
+    body = {
+        "Url": imgurl
+    }
+
+    response = requests.post(cvurl, data=json.dumps(body), headers=headers)
+    response.raise_for_status()
+
+    analysis = response.json()
+    name, pred = analysis["predictions"][0]["tagName"], analysis["predictions"][0]["probability"]
+    print(name, pred)
+    name, pred = analysis["predictions"][1]["tagName"], analysis["predictions"][1]["probability"]
+    print(name, pred)
 
 # ポート番号の設定
 if __name__ == "__main__":

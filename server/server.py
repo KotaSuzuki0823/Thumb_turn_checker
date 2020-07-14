@@ -15,8 +15,8 @@ from azure.storage.blob import BlobClient
 CONNECTION_STRING = "HostName=RaspberryPi-Camera.azure-devices.net;DeviceId=camera;SharedAccessKey=RjSAce0YtbpyEyQswSZiGL5btfspWBXfmj2/BM5iZWo="
 
 '''
-Azure Iot Hub 接続用関数
-ファイルを BLOB ストレージにアップロードする
+Azure Iot Hub
+Upload image file to Azure Storage as blob
 '''
 async def store_blob(blob_info, file_name):
     try:
@@ -29,14 +29,13 @@ async def store_blob(blob_info, file_name):
 
         screen.logOK("Uploading file: {} to Azure Storage as blob: {} in container {}\n".format(file_name, blob_info["blobName"], blob_info["containerName"]))
 
-        # Upload the specified file
+        # Upload the image file
         with BlobClient.from_blob_url(sas_url) as blob_client:
             with open(file_name, "rb") as f:
                 result = blob_client.upload_blob(f, overwrite=True)
                 return (True, result)
 
     except FileNotFoundError as ex:
-        # catch file not found and add an HTTP status code to return in notification to IoT Hub
         ex.status_code = 404
         screen.logFatal(ex)
         return (False, ex)
@@ -49,12 +48,9 @@ async def store_blob(blob_info, file_name):
 async def connectAndUploadToAzure(imgPath):
     try:
         screen.logOK( "IoT Hub file upload." )
-
         conn_str = CONNECTION_STRING
-
         device_client = IoTHubDeviceClient.create_from_connection_string(conn_str)
         blob_name = os.path.basename(imgPath)
-        # Connect the client
         await device_client.connect()
 
         # Get the storage info for the blob
@@ -73,7 +69,6 @@ async def connectAndUploadToAzure(imgPath):
             )
 
         else :
-            # If the upload was not successful, the result is the exception object
             screen.logFatal("Upload failed. Exception is: \n") 
             screen.logFatal(" ")
             print(result)
@@ -111,7 +106,7 @@ def main():
 
 
 if __name__ == "__main__":
-    # 5分ごとに実行
+    # run every 5min
     try:
         screen.logOK( "Running System, press Ctrl-C to exit" )
         schedule.every(5).minutes.do(main)
