@@ -22,8 +22,6 @@ URL = "https://api.line.me/v2/bot/message/multicast"
 app = Flask(__name__)
 
 # 環境変数取得
-# アクセストークンとChannel Secretをを取得し、設定
-
 channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
 channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', None)
 prediction_key = os.getenv('PREDICTIONKEY', None)
@@ -62,10 +60,6 @@ def callback():
 
     return 'OK'
 
-# LINEでMessageEvent（普通のメッセージを送信された場合）が起こった場合に、
-# def以下の関数を実行します。
-# reply_messageの第一引数のevent.reply_tokenは、イベントの応答に用いるトークンです。
-# 第二引数には、linebot.modelsに定義されている返信用のTextSendMessageオブジェクトを渡しています。
 def replyMessageText(event, message):
     line_bot_api.reply_message(
         event.reply_token,
@@ -77,20 +71,20 @@ def handle_message(event):
     getMessage = event.message.text  # ユーザが送信したメッセージ(event.message.text)を取得
 
     if getMessage == '写真':
-        message = '写真を送りますわ．'
-        replyMessageText(event, message)
+        message = '写真を送りますわ'
         replyImage(event)
-
+        #replyMessageText(event, message)
+        
     elif getMessage == '状態':
         state, pred = getCustomVision()
         if state:
-            message = '鍵があいていますわ．('+pred+')'
+            message = '鍵があいていますわよ('+pred+')'
         else:
-            message = '鍵はしまっていますわ．('+pred+')'
+            message = '鍵はしまっていますわよ('+pred+')'
         replyMessageText(event, message)
 
     else :
-        message = 'あなたの家の鍵の状態を確認しますわ．'
+        message = 'あなたの家の鍵の状態を確認しますね'
         replyMessageText(event, message)
         #replyImage(event)
 
@@ -98,7 +92,7 @@ def handle_message(event):
 #@handler.add(MessageEvent, message=ImageMessage)
 def replyImage(event,imgpath=imgdefulturl):
     ...
-    main_image_path = f"images/photo.jpg"
+    #main_image_path = f"images/photo.jpg"
     #preview_image_path = f"static/images/{message_id}_preview.jpg"
 
     # 画像の送信
@@ -109,8 +103,6 @@ def replyImage(event,imgpath=imgdefulturl):
 
     line_bot_api.reply_message(event.reply_token, image_message)
 
-
-# noinspection PyPackageRequirements
 def getCustomVision(imgurl=imgdefulturl):
     headers = {
         'content-type': 'application/json',
