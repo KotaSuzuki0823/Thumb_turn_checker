@@ -108,6 +108,8 @@ def replyImage(event,imgpath=imgdefulturl):
 
     line_bot_api.reply_message(event.reply_token, image_message)
 
+
+# noinspection PyPackageRequirements
 def getCustomVision(imgurl=imgdefulturl):
     headers = {
         'content-type': 'application/json',
@@ -116,21 +118,23 @@ def getCustomVision(imgurl=imgdefulturl):
     body = {
         "Url": imgurl
     }
-
-    response = requests.post(cvurl, data=json.dumps(body), headers=headers)
-    response.raise_for_status()
+    try:
+        response = requests.post(cvurl, data=json.dumps(body), headers=headers)
+        response.raise_for_status()
+    except:
+        print("POST ERROR")
+        return  True, 0
 
     analysis = response.json()
-    name1, pred1 = analysis["predictions"][0]["tagName"], analysis["predictions"][0]["probability"]
+    name1, pred1 = analysis["predictions"][0]["tagName"], analysis["predictions"][0]["probability"]#Open
     print(name1, pred1)
-    name2, pred2 = analysis["predictions"][1]["tagName"], analysis["predictions"][1]["probability"]
+    name2, pred2 = analysis["predictions"][1]["tagName"], analysis["predictions"][1]["probability"]#Close
     print(name2, pred2)
 
     if pred1 >= pred2:
         return True, pred1
     else:
         return False, pred1
-
 
 # ポート番号の設定
 if __name__ == "__main__":
