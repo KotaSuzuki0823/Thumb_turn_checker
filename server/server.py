@@ -12,8 +12,8 @@ from azure.iot.device.aio import IoTHubDeviceClient
 from azure.core.exceptions import AzureError
 from azure.storage.blob import BlobClient
 
-CONNECTION_STRING = "HostName=RaspberryPi-Camera.azure-devices.net;DeviceId=camera;SharedAccessKey=RjSAce0YtbpyEyQswSZiGL5btfspWBXfmj2/BM5iZWo="
-
+CONNECTION_STRING = os.getenv('CONNECTION_STRING', None)#変更済み
+IMGURL = os.getenv('IMGURL', None)
 '''
 Azure Iot Hub
 Upload image file to Azure Storage as blob
