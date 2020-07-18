@@ -16,7 +16,7 @@ import io
 def photoImageMatching(targetImagePath):
     args = docopt(__doc__)
     #教師データ
-    teacherImagePath = f"./comparingdata/open.jpg"
+    teacherImagePath = f"./comparephotodata/open.jpg"
 
     img_size = (800, 800)
     bf = cv2.BFMatcher(cv2.NORM_HAMMING)
