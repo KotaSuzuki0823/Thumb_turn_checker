@@ -100,10 +100,8 @@ def getPhoto():
 
 def main():
     photopath = getPhoto()
-    #photopath = "./testimg.png"
     loop = asyncio.get_event_loop()
     loop.run_until_complete(connectAndUploadToAzure(photopath))
-
 
 if __name__ == "__main__":
     # run every 5min

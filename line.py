@@ -41,6 +41,10 @@ if channel_access_token is None:
 line_bot_api = LineBotApi(channel_access_token)
 handler = WebhookHandler(channel_secret)
 
+#画像の類似度判定のしきい値（スレッショルド）
+#類似度がしきい値を下回った場合ほぼ写真と教師画像が同じ（解錠状態）として判断
+IMG_THRESHOLD = 50
+
 # Webhookからのリクエストをチェック
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -78,8 +82,8 @@ def handle_message(event):
         #replyMessageText(event, message)
         
     elif getMessage == '状態':
-        state, pred = getCustomVision()
-        if state:
+        pred = opencheck.photoImageMatching(imgdefulturl)
+        if pred < IMG_THRESHOLD:
             message = '鍵があいていますわよ('+pred+')'
         else:
             message = '鍵はしまっていますわよ('+pred+')'
@@ -105,6 +109,11 @@ def replyImage(event,imgpath=imgdefulturl):
 
     line_bot_api.reply_message(event.reply_token, image_message)
 
+'''
+Azure CustomVisionへアクセスする関数
+鍵の施錠状態をうまく判別ができないため，使用する予定なし．
+OpenCVで代用
+'''
 def getCustomVision(imgurl=imgdefulturl):
     headers = {
         'content-type': 'application/json',
@@ -131,11 +140,21 @@ def getCustomVision(imgurl=imgdefulturl):
     else:
         return False, pred1
 
-# ポート番号の設定
-if __name__ == "__main__":
-    #app.run()
+'''
+メインサービス
+'''
+def runservice():
+    # app.run()
     port = int(os.getenv("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
+def testrun():
+    pass
+
+if __name__ == "__main__":
+    #runservice
+    testrun()
+
 
 
 
