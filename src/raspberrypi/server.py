@@ -12,7 +12,7 @@ from azure.iot.device.aio import IoTHubDeviceClient
 from azure.core.exceptions import AzureError
 from azure.storage.blob import BlobClient
 
-import screen
+from logscreen import screen
 import opencheck.opencheck
 
 

@@ -18,7 +18,7 @@ import requests
 import json
 from _datetime import datetime
 
-import opencheck
+#import opencheck
 
 URL = "https://api.line.me/v2/bot/message/multicast"
 app = Flask(__name__)
@@ -82,7 +82,8 @@ def handle_message(event):
         #replyMessageText(event, message)
         
     elif getMessage == '状態':
-        pred = opencheck.photoImageMatching(imgdefulturl)
+        #pred = opencheck.photoImageMatching(imgdefulturl)
+        pred = 100  #一時的
         if pred < IMG_THRESHOLD:
             message = '鍵があいていますわよ('+pred+')'
         else:
