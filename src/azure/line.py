@@ -28,7 +28,7 @@ channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
 channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', None)
 prediction_key = os.getenv('PREDICTIONKEY', None)
 cvurl = os.getenv('CVURL', None)
-imgdefulturl = os.getenv('IMGURL', None)
+#imgdefulturl = os.getenv('IMGURL', None)
 
 
 if channel_secret is None:
@@ -97,15 +97,15 @@ def handle_message(event):
 
 #画像の返信
 #@handler.add(MessageEvent, message=ImageMessage)
-def replyImage(event,imgpath=imgdefulturl):
+def replyImage(event):
     ...
-    #main_image_path = f"images/photo.jpg"
-    #preview_image_path = f"static/images/{message_id}_preview.jpg"
+    main_image_path = f"/var/blob/photo.jpg"
+    preview_image_path = f"/var/blob/dummy.jpg"
 
     # 画像の送信
     image_message = ImageSendMessage(
-        original_content_url=imgdefulturl,
-        preview_image_url=imgdefulturl
+        original_content_url=main_image_path,
+        preview_image_url=preview_image_path
     )
 
     line_bot_api.reply_message(event.reply_token, image_message)
