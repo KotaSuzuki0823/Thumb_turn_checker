@@ -98,7 +98,7 @@ def getPhoto():
     except:
         screen.logFatal("subprocess.check_call() failed")
         return
-    
+    #pred = opencheck.photoImageMatching(f"./photo.jpg")
     screen.logOK("Successful photo shoot. time:" + takePhotoTime.strftime('%Y/%m/%d %H:%M:%S'))
     return os.path.abspath("./photo.jpg")
 
