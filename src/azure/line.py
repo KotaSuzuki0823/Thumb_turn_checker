@@ -18,7 +18,7 @@ import requests
 import json
 from _datetime import datetime
 
-import opencheck #オリジナル
+import opencheck
 
 URL = "https://api.line.me/v2/bot/message/multicast"
 app = Flask(__name__)

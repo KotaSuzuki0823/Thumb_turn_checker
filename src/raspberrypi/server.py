@@ -7,10 +7,14 @@ import os
 import asyncio
 import schedule
 import time
-from logscreen import screen 
+
 from azure.iot.device.aio import IoTHubDeviceClient
 from azure.core.exceptions import AzureError
 from azure.storage.blob import BlobClient
+
+import screen
+import opencheck.opencheck
+
 
 CONNECTION_STRING = os.getenv('CONNECTION_STRING', None)#変更済み
 IMGURL = os.getenv('IMGURL', None)
