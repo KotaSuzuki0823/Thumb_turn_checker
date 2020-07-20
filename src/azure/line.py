@@ -85,9 +85,9 @@ def handle_message(event):
         #pred = opencheck.photoImageMatching(imgdefulturl)
         pred = 100  #一時的
         if pred < IMG_THRESHOLD:
-            message = '鍵があいていますわよ('+pred+')'
+            message = '鍵があいていますわよ('+str(pred)+')'
         else:
-            message = '鍵はしまっていますわよ('+pred+')'
+            message = '鍵はしまっていますわよ('+str(pred)+')'
         replyMessageText(event, message)
 
     else :
