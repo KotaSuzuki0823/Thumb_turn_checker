@@ -115,7 +115,7 @@ Azure CustomVisionへアクセスする関数
 鍵の施錠状態をうまく判別ができないため，使用する予定なし．
 OpenCVで代用
 '''
-def getCustomVision(imgurl=imgdefulturl):
+def getCustomVision(imgurl):
     headers = {
         'content-type': 'application/json',
         'Prediction-Key': prediction_key

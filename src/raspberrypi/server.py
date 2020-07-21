@@ -98,12 +98,16 @@ def getPhoto():
     except:
         screen.logFatal("subprocess.check_call() failed")
         return
-    #pred = opencheck.photoImageMatching(f"./photo.jpg")
+    
     screen.logOK("Successful photo shoot. time:" + takePhotoTime.strftime('%Y/%m/%d %H:%M:%S'))
-    return os.path.abspath("./photo.jpg")
+
+    pret = opencheck.PhotoImageMatching(f"./photo.jpg")
+    screen.logOK("Successful photoImageMatching. (" + str(pret) +")")
+
+    return os.path.abspath("./photo.jpg"), pret
 
 def main():
-    photopath = getPhoto()
+    photopath, pret = getPhoto()
     loop = asyncio.get_event_loop()
     loop.run_until_complete(connectAndUploadToAzure(photopath))
 

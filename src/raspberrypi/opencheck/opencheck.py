@@ -13,7 +13,7 @@ import io
 引数 targetImagePath：調査対象画像のURL
 返り値 ret：特徴点の距離（値が小さいほど類似度が高い）
 '''
-def photoImageMatching(targetImagePath):
+def PhotoImageMatching(targetImagePath):
     args = docopt(__doc__)
     #教師データ
     teacherImagePath = f"./comparephotodata/open.jpg"
