@@ -79,7 +79,7 @@ def handle_message(event):
     if getMessage == '写真':
         message = '写真を送りますわ'
         replyImage(event)
-        #replyMessageText(event, message)
+        replyMessageText(event, message)
         
     elif getMessage == '状態':
         #pred = opencheck.photoImageMatching(imgdefulturl)
@@ -99,8 +99,8 @@ def handle_message(event):
 #@handler.add(MessageEvent, message=ImageMessage)
 def replyImage(event):
     ...
-    main_image_path = f"/var/blob/photo.jpg"
-    preview_image_path = f"/var/blob/dummy.jpg"
+    main_image_path = os.path.abspath(f"/var/blob/photo.jpg")
+    preview_image_path = os.path.abspath(f"/var/blob/dummy.jpg")
 
     # 画像の送信
     image_message = ImageSendMessage(
