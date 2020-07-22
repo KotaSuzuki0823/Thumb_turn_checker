@@ -83,11 +83,13 @@ def handle_message(event):
         
     elif getMessage == '状態':
         #pred = opencheck.photoImageMatching(imgdefulturl)
-        pred = 100  #一時的
-        if pred < IMG_THRESHOLD:
-            message = '鍵があいていますわよ('+str(pred)+')'
+        with open(f"/var/blob/camera/pretdata", mode="r") as fp:
+            data = fp.readlines()
+            #data[0]：特徴点距離（類似度，低い程似ている），data[1]：時，data[2]：分
+        if int(data[0]) < IMG_THRESHOLD:
+            message = '鍵があいていますわよ(類似度：'+str(data[0])+'，'+str(data[1])+'時'+str(data[2])+'分現在)'
         else:
-            message = '鍵はしまっていますわよ('+str(pred)+')'
+            message = '鍵はしまっていますわよ(類似度：'+str(data[0])+'，'+str(data[1])+'時'+str(data[2])+'分現在)'
         replyMessageText(event, message)
 
     else :
@@ -99,7 +101,7 @@ def handle_message(event):
 #@handler.add(MessageEvent, message=ImageMessage)
 def replyImage(event):
     ...
-    main_image_path = os.path.abspath(f"/var/blob/photo.jpg")
+    main_image_path = os.path.abspath(f"/var/blob/camera/photo.jpg")
     preview_image_path = os.path.abspath(f"/var/blob/dummy.jpg")
 
     # 画像の送信
