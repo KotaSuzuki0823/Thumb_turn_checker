@@ -98,6 +98,10 @@ def handle_message(event):
             message = '鍵はしまっていますわよ\n(類似度：'+str(data[0])+'，'+str(data[1])+'時'+str(data[2])+'分現在)'
         replyMessageText(event, message)
 
+    elif getMessage == 'なにこれ':
+        message = 'わたくしはサムターン確認くんです．\nおなたの家にあるサムターンを確認し，施錠状態をお知らせしますわ．'
+        replyMessageText(event, message)
+
     else :
         message = 'あなたの家の鍵の状態を確認しますね'
         replyMessageText(event, message)
