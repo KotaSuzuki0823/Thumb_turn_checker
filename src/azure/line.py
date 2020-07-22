@@ -85,11 +85,17 @@ def handle_message(event):
         #pred = opencheck.photoImageMatching(imgdefulturl)
         with open(f"/var/blob/camera/pretdata", mode="r") as fp:
             data = fp.readlines()
+
+        if len(data) != 3:
+                print("error:imported pretdata is bad")
+                return
+
+        data = [s.strip() for s in data]
             #data[0]：特徴点距離（類似度，低い程似ている），data[1]：時，data[2]：分
         if float(data[0]) < IMG_THRESHOLD:
-            message = '鍵があいていますわよ(類似度：'+str(data[0])+'，'+str(data[1])+'時'+str(data[2])+'分現在)'
+            message = '鍵があいていますわよ\n(類似度：'+str(data[0])+'，'+str(data[1])+'時'+str(data[2])+'分現在)'
         else:
-            message = '鍵はしまっていますわよ(類似度：'+str(data[0])+'，'+str(data[1])+'時'+str(data[2])+'分現在)'
+            message = '鍵はしまっていますわよ\n(類似度：'+str(data[0])+'，'+str(data[1])+'時'+str(data[2])+'分現在)'
         replyMessageText(event, message)
 
     else :
