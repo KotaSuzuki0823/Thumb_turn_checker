@@ -18,6 +18,8 @@ import opencheck.opencheck
 
 CONNECTION_STRING = os.getenv('CONNECTION_STRING', None)#変更済み
 IMGURL = os.getenv('IMGURL', None)
+HOME = os.environ['HOME']#ホームディレクトリのパス
+
 '''
 Azure Iot Hub
 Upload image file to Azure Storage as blob
@@ -104,12 +106,21 @@ def getPhoto():
     pret = opencheck.PhotoImageMatching(f"./photo.jpg")
     screen.logOK("Successful photoImageMatching. (" + str(pret) +")")
 
-    return os.path.abspath("./photo.jpg"), pret
+    pretdatapass = HOME + "pretdata"
+    WritePret(pret,pretdatapass)
+
+    return os.path.abspath("./photo.jpg"), pretdatapass ,pret
+
+def WritePret(pret, path):
+    with open(path, mode='w') as fp:
+        time_now = datetime.datetime.now()
+        msg = str(pret) + "\n" + str(time_now.hour) + "\n" + str(time_now.minute)
+        fp.write(msg)
 
 def main():
-    photopath, pret = getPhoto()
+    photopath, datapass, pret = getPhoto()
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(connectAndUploadToAzure(photopath))
+    loop.run_until_complete(connectAndUploadToAzure(datapass))
 
 if __name__ == "__main__":
     # run every 5min
