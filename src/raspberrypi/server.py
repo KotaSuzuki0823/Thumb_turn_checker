@@ -114,7 +114,7 @@ def getPhoto():
 def WritePret(pret, path):
     with open(path, mode='w') as fp:
         time_now = datetime.datetime.now()
-        msg = str(pret) + "\n" + str(time_now.hour) + "\n" + str(time_now.minute)
+        msg = str(pret) + "\n" + str(time_now.hour) + "\n" + str(time_now.minute) + "\n"
         fp.write(msg)
 
 def main():
