@@ -86,7 +86,7 @@ def handle_message(event):
         with open(f"/var/blob/camera/pretdata", mode="r") as fp:
             data = fp.readlines()
             #data[0]：特徴点距離（類似度，低い程似ている），data[1]：時，data[2]：分
-        if int(data[0]) < IMG_THRESHOLD:
+        if float(data[0]) < IMG_THRESHOLD:
             message = '鍵があいていますわよ(類似度：'+str(data[0])+'，'+str(data[1])+'時'+str(data[2])+'分現在)'
         else:
             message = '鍵はしまっていますわよ(類似度：'+str(data[0])+'，'+str(data[1])+'時'+str(data[2])+'分現在)'
