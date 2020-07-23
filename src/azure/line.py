@@ -84,14 +84,13 @@ def handle_message(event):
             data = [s.strip() for s in data]
                 #data[0]：特徴点距離（類似度，低い程似ている），data[1]：時，data[2]：分
             if float(data[0]) < float(IMG_THRESHOLD):
-                message = '鍵があいていますわよ\n(類似度：'+str(data[0])+'，'+str(data[1])+'時'+str(data[2])+'分現在)'
+                message = '鍵があいていますわ\n(類似度：'+str(data[0])+'，'+str(data[1])+'時'+str(data[2])+'分現在)'
             else:
-                message = '鍵はしまっていますわよ\n(類似度：'+str(data[0])+'，'+str(data[1])+'時'+str(data[2])+'分現在)'
+                message = '鍵はしまっていますわ\n(類似度：'+str(data[0])+'，'+str(data[1])+'時'+str(data[2])+'分現在)'
             replyMessageText(event, message)
 
         except Exception as e:
             print("Bad pretdata:\t",e)
-
 
     elif getMessage == 'なにこれ':
         message = 'わたくしはサムターン確認くんです．\nおなたの家にあるサムターンを確認し，施錠状態をお知らせしますわ．'
@@ -157,7 +156,3 @@ def runservice():
 
 if __name__ == "__main__":
     runservice()
-
-
-
-
