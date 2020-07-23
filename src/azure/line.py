@@ -43,7 +43,7 @@ handler = WebhookHandler(channel_secret)
 
 #画像の類似度判定のしきい値（スレッショルド）
 #類似度がしきい値を下回った場合ほぼ写真と教師画像が同じ（解錠状態）として判断
-IMG_THRESHOLD = 50
+IMG_THRESHOLD = os.getenv('IMG_THRESHOLD', None)
 
 # Webhookからのリクエストをチェック
 @app.route("/callback", methods=['POST'])
@@ -83,7 +83,7 @@ def handle_message(event):
         
     elif getMessage == '状態':
         #pred = opencheck.photoImageMatching(imgdefulturl)
-        with open(f"/var/blob/camera/pretdata", mode="r") as fp:
+        with open(f"/var/blob/pretdata", mode="r") as fp:
             data = fp.readlines()
 
         if len(data) != 3:
@@ -111,7 +111,7 @@ def handle_message(event):
 #@handler.add(MessageEvent, message=ImageMessage)
 def replyImage(event):
     ...
-    main_image_path = os.path.abspath(f"/var/blob/camera/photo.jpg")
+    main_image_path = "https://thumbtuenphoto.z31.web.core.windows.net/photo.jpg"
     preview_image_path = "https://thumbtuenphoto.z31.web.core.windows.net/dummy.jpg"#ダミー
 
     # 画像の送信
