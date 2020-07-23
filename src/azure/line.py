@@ -1,5 +1,9 @@
-from flask import Flask, request, abort
+import sys
+import os
+import requests
+import json
 
+from flask import Flask, request, abort
 from linebot import (
     LineBotApi, WebhookHandler
 )
@@ -10,26 +14,21 @@ from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage, ImageSendMessage, ImageMessage
 )
 
-import sys
-import os
-import urllib
-import math
-import requests
-import json
-from _datetime import datetime
-
-#import opencheck
-
 URL = "https://api.line.me/v2/bot/message/multicast"
 app = Flask(__name__)
 
 # 環境変数取得
+#LINE Messaging API
 channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
 channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', None)
+
+#Azure Costom Vision
 prediction_key = os.getenv('PREDICTIONKEY', None)
 cvurl = os.getenv('CVURL', None)
-#imgdefulturl = os.getenv('IMGURL', None)
 
+#画像の類似度判定のしきい値（スレッショルド）
+#類似度がしきい値を下回った場合ほぼ写真と教師画像が同じ（解錠状態）として判断
+IMG_THRESHOLD = os.getenv('IMG_THRESHOLD', None)
 
 if channel_secret is None:
     print('Specify LINE_CHANNEL_SECRET as environment variable.')
@@ -41,11 +40,7 @@ if channel_access_token is None:
 line_bot_api = LineBotApi(channel_access_token)
 handler = WebhookHandler(channel_secret)
 
-#画像の類似度判定のしきい値（スレッショルド）
-#類似度がしきい値を下回った場合ほぼ写真と教師画像が同じ（解錠状態）として判断
-IMG_THRESHOLD = os.getenv('IMG_THRESHOLD', None)
-
-# Webhookからのリクエストをチェック
+# Webhookからのリクエストをチェック(認証)
 @app.route("/callback", methods=['POST'])
 def callback():
     signature = request.headers['X-Line-Signature']
@@ -82,21 +77,21 @@ def handle_message(event):
         replyMessageText(event, message)
         
     elif getMessage == '状態':
-        #pred = opencheck.photoImageMatching(imgdefulturl)
         with open(f"/var/blob/pretdata", mode="r") as fp:
             data = fp.readlines()
 
-        if len(data) != 3:
-                print("error:imported pretdata is bad")
-                return
+        try:
+            data = [s.strip() for s in data]
+                #data[0]：特徴点距離（類似度，低い程似ている），data[1]：時，data[2]：分
+            if float(data[0]) < float(IMG_THRESHOLD):
+                message = '鍵があいていますわよ\n(類似度：'+str(data[0])+'，'+str(data[1])+'時'+str(data[2])+'分現在)'
+            else:
+                message = '鍵はしまっていますわよ\n(類似度：'+str(data[0])+'，'+str(data[1])+'時'+str(data[2])+'分現在)'
+            replyMessageText(event, message)
 
-        data = [s.strip() for s in data]
-            #data[0]：特徴点距離（類似度，低い程似ている），data[1]：時，data[2]：分
-        if float(data[0]) < IMG_THRESHOLD:
-            message = '鍵があいていますわよ\n(類似度：'+str(data[0])+'，'+str(data[1])+'時'+str(data[2])+'分現在)'
-        else:
-            message = '鍵はしまっていますわよ\n(類似度：'+str(data[0])+'，'+str(data[1])+'時'+str(data[2])+'分現在)'
-        replyMessageText(event, message)
+        except Exception as e:
+            print("Bad pretdata:\t",e)
+
 
     elif getMessage == 'なにこれ':
         message = 'わたくしはサムターン確認くんです．\nおなたの家にあるサムターンを確認し，施錠状態をお知らせしますわ．'
@@ -105,7 +100,6 @@ def handle_message(event):
     else :
         message = 'あなたの家の鍵の状態を確認しますね'
         replyMessageText(event, message)
-        #replyImage(event)
 
 #画像の返信
 #@handler.add(MessageEvent, message=ImageMessage)
