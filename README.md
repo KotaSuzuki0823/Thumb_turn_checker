@@ -1,4 +1,8 @@
 # Thumb_turn_checker
+## pip
+実行時に必要となるパッケージは以下のコマンドでインストール
+
+`pip install -r requirements.txt`
 
 ## 環境変数
 ### Azure App Service
