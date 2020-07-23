@@ -10,19 +10,24 @@ import time
 
 from azure.iot.device.aio import IoTHubDeviceClient
 from azure.core.exceptions import AzureError
-from azure.storage.blob import BlobClient
+from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
 
 from logscreen import screen
 import opencheck.opencheck
 
+#Azure IoT Hubの接続文字列
+CONNECTION_STRING = os.getenv('CONNECTION_STRING', None)
 
-CONNECTION_STRING = os.getenv('CONNECTION_STRING', None)#変更済み
 IMGURL = os.getenv('IMGURL', None)
 HOME = os.environ['HOME']#ホームディレクトリのパス
 
+CONTAINER_NAME = "raspberrypi-camera"
+#Azure Storage Containerの接続文字列
+AZURE_STORAGE_CONTAINER_CONNECTION_STRING = os.getenv('ASC_CONNECTION_STRING', None)
 '''
-Azure Iot Hub
-Upload image file to Azure Storage as blob
+Azure Iot Hub用
+Azure Storageの「$web」へアップロード
+アップロード先の変更はAzure Iot Hubポータルから行う
 '''
 async def store_blob(blob_info, file_name):
     try:
@@ -117,10 +122,21 @@ def WritePret(pret, path):
         msg = str(pret) + "\n" + str(time_now.hour) + "\n" + str(time_now.minute) + "\n"
         fp.write(msg)
 
+'''
+Azure Storage Containerへファイルをアップロード
+'''
+def UploadToAzureStrageContainer(filepath):
+    blob_service_client = BlobServiceClient.from_connection_string(CONNECTION_STRING)
+    container_client = blob_service_client.get_container_client(CONTAINER_NAME)
+    blob_client = container_client.get_blob_client(filepath)
+    with open(filepath, "rb") as data:
+        blob_client.upload_blob(data, blob_type="AppendBlob")
+
 def main():
     photopath, datapass, pret = getPhoto()
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(connectAndUploadToAzure(datapass))
+    loop.run_until_complete(connectAndUploadToAzure(photopath))
+    UploadToAzureStrageContainer(datapass)
 
 if __name__ == "__main__":
     # run every 5min

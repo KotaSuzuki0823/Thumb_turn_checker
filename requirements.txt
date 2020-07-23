@@ -2,6 +2,7 @@ astroid
 azure-core==1.7.0
 azure-iot-device==2.1.4
 azure-storage-blob==12.3.2
+azure-storage
 certifi
 cffi
 chardet

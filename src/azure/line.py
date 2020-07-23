@@ -112,7 +112,7 @@ def handle_message(event):
 def replyImage(event):
     ...
     main_image_path = os.path.abspath(f"/var/blob/camera/photo.jpg")
-    preview_image_path = os.path.abspath(f"/var/blob/dummy.jpg")
+    preview_image_path = "https://thumbtuenphoto.z31.web.core.windows.net/dummy.jpg"#ダミー
 
     # 画像の送信
     image_message = ImageSendMessage(
