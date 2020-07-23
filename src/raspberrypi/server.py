@@ -18,7 +18,6 @@ import opencheck.opencheck
 #Azure IoT Hubの接続文字列
 CONNECTION_STRING = os.getenv('CONNECTION_STRING', None)
 
-IMGURL = os.getenv('IMGURL', None)
 HOME = os.environ['HOME']#ホームディレクトリのパス
 
 CONTAINER_NAME = "raspberrypi-camera"
