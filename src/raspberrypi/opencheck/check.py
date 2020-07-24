@@ -7,13 +7,15 @@ import sys
 import requests
 import tempfile
 import io
+import datetime
 
-'''
-読み込んだ画像と予め保持している画像の特徴点のマッチングを行う
-引数 targetImagePath：調査対象画像のURL
-返り値 ret：特徴点の距離（値が小さいほど類似度が高い）
-'''
 def PhotoImageMatching(targetImagePath):
+    '''
+    読み込んだ画像と予め保持している画像の特徴点のマッチングを行う
+    引数 targetImagePath：調査対象画像のURL
+    返り値 ret：特徴点の距離（値が小さいほど類似度が高い）
+    '''
+
     #教師データ
     teacherImagePath = f"./opencheck/comparephotodata/open.jpg"
 
@@ -41,11 +43,24 @@ def PhotoImageMatching(targetImagePath):
 
     return ret
 
-'''
-Webから画像読み込み
-openCVの画像変数を返す
-'''
+def WritePret(pret, path):
+    '''
+    写真の類似度，書き込み時間（時，分）を出力
+    '''
+    try:
+        with open(path, mode='w') as fp:
+            time_now = datetime.datetime.now()
+            msg = str(pret) + "\n" + str(time_now.hour) + "\n" + str(time_now.minute)
+            fp.write(msg)
+        
+    except Exception as e:
+        print(e)
+
 def imread_web(url):
+    '''
+    Webから画像読み込み
+    openCVの画像変数を返す
+    '''
     res = requests.get(url)
     img = None
 
@@ -53,4 +68,5 @@ def imread_web(url):
         fp.write(res.content)
         fp.file.seek(0)
         img = cv2.imread(fp.name)
+        
     return img

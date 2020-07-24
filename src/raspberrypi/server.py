@@ -24,12 +24,13 @@ HOME = os.environ['HOME']#ホームディレクトリのパス
 CONTAINER_NAME = "raspberrypi-camera"
 #Azure Storage Containerの接続文字列
 AZURE_STORAGE_CONTAINER_CONNECTION_STRING = os.getenv('ASC_CONNECTION_STRING', None)
-'''
-Azure Iot Hub用
-Azure Storageの「$web」へアップロード
-アップロード先の変更はAzure Iot Hubポータルから行う
-'''
+
 async def store_blob(blob_info, file_name):
+    '''
+    Azure Iot Hub用
+    Azure Storageの「$web」へアップロード
+    アップロード先の変更はAzure Iot Hubポータルから行う
+    '''
     try:
         sas_url = "https://{}/{}/{}{}".format(
             blob_info["hostName"],
@@ -93,87 +94,80 @@ async def connectAndUploadToAzure(imgPath):
         # Finally, disconnect the client
         await device_client.disconnect()
         screen.logOK("Disconnect the client")
-
-def getPhoto():
-    cmd = ["raspistill", "-t", "3000", "-o", "photo.jpg"]
-    screen.logOK("Run raspistill...")
-    try:
-        subprocess.check_call(cmd)
-        takePhotoTime = datetime.datetime.now()
-    except:
-        screen.logFatal("subprocess.check_call() failed")
-        return
     
-    screen.logOK("Successful photo shoot. time:" + takePhotoTime.strftime('%Y/%m/%d %H:%M:%S'))
-
-    pret = oc.PhotoImageMatching(f"./photo.jpg")
-    screen.logOK("Successful photoImageMatching. (" + str(pret) +")")
-
-    pretdatapass = HOME + "pretdata"
-    WritePret(pret,pretdatapass)
-
-    return os.path.abspath("./photo.jpg"), pretdatapass ,pret
-
-def WritePret(pret, path):
-    with open(path, mode='w') as fp:
-        time_now = datetime.datetime.now()
-        msg = str(pret) + "\n" + str(time_now.hour) + "\n" + str(time_now.minute) + "\n"
-        fp.write(msg)
-
-'''
-Azure Storage Containerへファイルをアップロード
-'''
 def UploadToAzureStrageContainer(filepath):
+    '''
+    Azure Storage Containerへファイルをアップロード
+    filepath:アップロードするローカルファイルパス
+    '''
     screen.logOK("Uploading file to AzureStrageContainer")
     try:
         blob_service_client = BlobServiceClient.from_connection_string(AZURE_STORAGE_CONTAINER_CONNECTION_STRING)
-        container_client = blob_service_client.get_container_client(AZURE_STORAGE_CONTAINER_CONNECTION_STRING)
+        container_client = blob_service_client.get_container_client(CONTAINER_NAME)
         blob_client = container_client.get_blob_client("pretdata")
 
         blob_client.delete_blob()#クラウド上のファイルを削除
-        screen.logOK("Delete old file in AzureStrageContainer")
+        screen.logOK("Deleted old pretdata file in AzureStrageContainer")
 
         with open(filepath, "rb") as data:
             blob_client.upload_blob(data, blob_type="AppendBlob")#アップロード
 
+        screen.logOK("Uploaded file("+ filepath +") to AzureStrageContainer")
+
     except Exception as e:
         screen.logFatal(e)
 
-def main():
-    photopath, datapass, pret = getPhoto()
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(connectAndUploadToAzure(photopath))
-    UploadToAzureStrageContainer(datapass)
+def getPhoto(photopath):
+    '''
+    写真の撮影，類似度の取得
+    '''
 
-'''
-テスト用
-'''
-def setPhoto():
+    cmd = ["raspistill", "-t", "3000", "-o", photopath]
+    screen.logOK("Run raspistill...")
     try:
+        subprocess.check_call(cmd)
         takePhotoTime = datetime.datetime.now()
-    except:
-        screen.logFatal("subprocess.check_call() failed")
+    except Exception as e:
+        screen.logFatal("subprocess.check_call() failed:"+ e)
         return
+    
+    screen.logOK("Successful photo shoot. time:" + takePhotoTime.strftime('%Y/%m/%d %H:%M:%S')+"file:"+photopath)
 
-    screen.logOK("Successful photo shoot. time:" + takePhotoTime.strftime('%Y/%m/%d %H:%M:%S'))
-
+def main():
     photopath = HOME + "/photo.jpg"
-    screen.logOK(photopath)
+    getPhoto(photopath)
 
     pret = oc.PhotoImageMatching(photopath)
     screen.logOK("Successful photoImageMatching. (" + str(pret) + ")")
 
-    pretdatapass = HOME + "/pretdata"
-    WritePret(pret, pretdatapass)
+    pretdatapath = HOME + "/pretdata"
+    oc.WritePret(pret, pretdatapath)
 
-    return photopath, pretdatapass, pret
-
-def maintest():
-    photopath, datapass, pret = setPhoto()
     loop = asyncio.get_event_loop()
     loop.run_until_complete(connectAndUploadToAzure(photopath))
-    UploadToAzureStrageContainer(datapass)
+    UploadToAzureStrageContainer(pretdatapath)
 
+    screen.logOK("finish")
+
+'''
+テスト用
+'''
+
+def maintest():
+    photopath = HOME + "/photo.jpg"
+
+    pret = oc.PhotoImageMatching(photopath)
+    screen.logOK("Successful photoImageMatching. (" + str(pret) + ")")
+
+    pretdatapath = HOME + "/pretdata"
+    oc.WritePret(pret, pretdatapath)
+    screen.logOK("Successful output pretdata. >> " + pretdatapath)
+
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(connectAndUploadToAzure(photopath))
+    UploadToAzureStrageContainer(pretdatapath)
+
+    screen.logOK("finish")
 if __name__ == "__main__":
     # run every 5min
     args = sys.argv
@@ -181,8 +175,8 @@ if __name__ == "__main__":
         screen.logOK( "Running System, press Ctrl-C to exit" )
 
         if "-t" in args:
-            screen.logOK("Running TEST")
-            schedule.every(10).seconds.do(maintest)
+            screen.logWarning("Running TEST")
+            maintest()
         else:
             schedule.every(5).minutes.do(main)
 
@@ -191,4 +185,4 @@ if __name__ == "__main__":
             time.sleep(5)
 
     except KeyboardInterrupt:
-        screen.logFatal( "System stopped." )
+        screen.logWarning( "System stopped." )
