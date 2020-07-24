@@ -104,7 +104,7 @@ def handle_message(event):
 #@handler.add(MessageEvent, message=ImageMessage)
 def replyImage(event):
     ...
-    main_image_path = "https://thumbtuenphoto.z31.web.core.windows.net/photo.jpg"
+    main_image_path = "https://thumbtuenphoto.z31.web.core.windows.net/camera/photo.jpg"
     preview_image_path = "https://thumbtuenphoto.z31.web.core.windows.net/dummy.jpg"#ダミー
 
     # 画像の送信

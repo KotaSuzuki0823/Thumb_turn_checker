@@ -14,10 +14,11 @@ class pycolor:
     REVERCE = '\033[07m'
 
 def logFatal(msg):
-    print("[" + pycolor.RED + " FATAL " + pycolor.END + "] " + msg)
+    print("[" + pycolor.RED + " FATAL " + pycolor.END + "] " + str(msg))
 
 def logOK(msg):
-    print("[" + pycolor.GREEN + "  O K  " + pycolor.END + "] " + msg)
+    print("[" + pycolor.GREEN + "  O K  " + pycolor.END + "] " + str(msg))
+    
 
 def logWarning(msg):
     print("[" + pycolor.YELLOW + "WARNING" + pycolor.END + "] " + msg)

@@ -14,7 +14,7 @@ from azure.core.exceptions import AzureError
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
 
 from logscreen import screen
-import opencheck.opencheck
+from opencheck import check as oc
 
 #Azure IoT Hubの接続文字列
 CONNECTION_STRING = os.getenv('CONNECTION_STRING', None)
@@ -71,18 +71,16 @@ async def connectAndUploadToAzure(imgPath):
         success, result = await store_blob(storage_info, imgPath)
 
         if success == True:
-            screen.logOK("Upload succeeded. Result is: \n")
-            screen.logOK(" ")
-            print(result)
+            screen.logOK("Upload succeeded. Result is:")
+            screen.logOK(result)
 
             await device_client.notify_blob_upload_status(
                 storage_info["correlationId"], True, 200, "OK: {}".format(imgPath)
             )
 
         else :
-            screen.logFatal("Upload failed. Exception is: \n") 
-            screen.logFatal(" ")
-            print(result)
+            screen.logFatal("Upload failed. Exception is:")
+            screen.logFatal(result)
 
             await device_client.notify_blob_upload_status(
                 storage_info["correlationId"], False, result.status_code, str(result)
@@ -108,7 +106,7 @@ def getPhoto():
     
     screen.logOK("Successful photo shoot. time:" + takePhotoTime.strftime('%Y/%m/%d %H:%M:%S'))
 
-    pret = opencheck.PhotoImageMatching(f"./photo.jpg")
+    pret = oc.PhotoImageMatching(f"./photo.jpg")
     screen.logOK("Successful photoImageMatching. (" + str(pret) +")")
 
     pretdatapass = HOME + "pretdata"
@@ -126,12 +124,17 @@ def WritePret(pret, path):
 Azure Storage Containerへファイルをアップロード
 '''
 def UploadToAzureStrageContainer(filepath):
-    blob_service_client = BlobServiceClient.from_connection_string(CONNECTION_STRING)
-    container_client = blob_service_client.get_container_client(CONTAINER_NAME)
-    blob_client = container_client.get_blob_client(filepath)
-    blob_client.delete_blob()#クラウド上のファイルを削除
-    with open(filepath, "rb") as data:
-        blob_client.upload_blob(data, blob_type="AppendBlob")#アップロード
+    screen.logOK("Uploading file to AzureStrageContainer")
+    try:
+        blob_service_client = BlobServiceClient.from_connection_string(AZURE_STORAGE_CONTAINER_CONNECTION_STRING)
+        container_client = blob_service_client.get_container_client(AZURE_STORAGE_CONTAINER_CONNECTION_STRING)
+        blob_client = container_client.get_blob_client(filepath)
+        blob_client.delete_blob()#クラウド上のファイルを削除
+        with open(filepath, "rb") as data:
+            blob_client.upload_blob(data, blob_type="AppendBlob")#アップロード
+
+    except Exception as e:
+        screen.logFatal(e)
 
 def main():
     photopath, datapass, pret = getPhoto()
@@ -151,13 +154,16 @@ def setPhoto():
 
     screen.logOK("Successful photo shoot. time:" + takePhotoTime.strftime('%Y/%m/%d %H:%M:%S'))
 
-    pret = opencheck.PhotoImageMatching(f"./photo.jpg")
+    photopath = HOME + "/photo.jpg"
+    screen.logOK(photopath)
+
+    pret = oc.PhotoImageMatching(photopath)
     screen.logOK("Successful photoImageMatching. (" + str(pret) + ")")
 
-    pretdatapass = HOME + "pretdata"
+    pretdatapass = HOME + "/pretdata"
     WritePret(pret, pretdatapass)
 
-    return os.path.abspath("./photo.jpg"), os.path.abspath("./pretdata"), pret
+    return photopath, pretdatapass, pret
 
 def maintest():
     photopath, datapass, pret = setPhoto()
@@ -171,8 +177,9 @@ if __name__ == "__main__":
     try:
         screen.logOK( "Running System, press Ctrl-C to exit" )
 
-        if args in "-t":
-            schedule.every(30).seconds.do(maintest)
+        if "-t" in args:
+            screen.logOK("Running TEST")
+            schedule.every(10).seconds.do(maintest)
         else:
             schedule.every(5).minutes.do(main)
 

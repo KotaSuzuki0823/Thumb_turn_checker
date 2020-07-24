@@ -14,9 +14,8 @@ import io
 返り値 ret：特徴点の距離（値が小さいほど類似度が高い）
 '''
 def PhotoImageMatching(targetImagePath):
-    args = docopt(__doc__)
     #教師データ
-    teacherImagePath = f"./comparephotodata/open.jpg"
+    teacherImagePath = f"./opencheck/comparephotodata/open.jpg"
 
     img_size = (800, 800)
     bf = cv2.BFMatcher(cv2.NORM_HAMMING)
@@ -31,8 +30,7 @@ def PhotoImageMatching(targetImagePath):
 
     # read target image
     tergetImage_name = os.path.basename(targetImagePath)
-    #targetImage = cv2.imread(targetImagePath, cv2.IMREAD_GRAYSCALE)
-    targetImage = imread_web(targetImagePath)
+    targetImage = cv2.imread(targetImagePath, cv2.IMREAD_GRAYSCALE)
     targetImage = cv2.resize(targetImage, img_size)
     (target_kp, target_des) = detector.detectAndCompute(targetImage, None)
 
