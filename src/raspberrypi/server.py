@@ -7,6 +7,7 @@ import os
 import asyncio
 import schedule
 import time
+import sys
 
 from azure.iot.device.aio import IoTHubDeviceClient
 from azure.core.exceptions import AzureError
@@ -138,10 +139,46 @@ def main():
     loop.run_until_complete(connectAndUploadToAzure(photopath))
     UploadToAzureStrageContainer(datapass)
 
+'''
+テスト用
+'''
+def setPhoto():
+    try:
+        takePhotoTime = datetime.datetime.now()
+    except:
+        screen.logFatal("subprocess.check_call() failed")
+        return
+
+    screen.logOK("Successful photo shoot. time:" + takePhotoTime.strftime('%Y/%m/%d %H:%M:%S'))
+
+    pret = opencheck.PhotoImageMatching(f"./photo.jpg")
+    screen.logOK("Successful photoImageMatching. (" + str(pret) + ")")
+
+    pretdatapass = HOME + "pretdata"
+    WritePret(pret, pretdatapass)
+
+    return os.path.abspath("./photo.jpg"), os.path.abspath("./pretdata"), pret
+
+def maintest():
+    photopath, datapass, pret = setPhoto()
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(connectAndUploadToAzure(photopath))
+    UploadToAzureStrageContainer(datapass)
+
 if __name__ == "__main__":
     # run every 5min
+    args = sys.argv
     try:
         screen.logOK( "Running System, press Ctrl-C to exit" )
-        schedule.every(5).minutes.do(main)
+
+        if args in "-t":
+            schedule.every(30).seconds.do(maintest)
+        else:
+            schedule.every(5).minutes.do(main)
+
+        while True:
+            schedule.run_pending()
+            time.sleep(5)
+
     except KeyboardInterrupt:
         screen.logFatal( "System stopped." )
