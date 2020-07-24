@@ -14,7 +14,8 @@
             "args": ["-t"],
             "env": {
                 "ASC_CONNECTION_STRING": "DefaultEndpointsProtocol=https;AccountName=thumbtuenphoto;AccountKey=0e5FT/fMPubhy8H9d9YzlEajUmYZVcsHFtIN+fWgwb6YRNouP2JFXltdd70VJE9RkfKnxiNYantC5bFMVe2q5w==;EndpointSuffix=core.windows.net",
-                "CONNECTION_STRING": "HostName=RaspberryPi-Camera.azure-devices.net;DeviceId=camera;SharedAccessKey=RjSAce0YtbpyEyQswSZiGL5btfspWBXfmj2/BM5iZWo="
+                "CONNECTION_STRING": "HostName=RaspberryPi-Camera.azure-devices.net;DeviceId=camera;SharedAccessKey=RjSAce0YtbpyEyQswSZiGL5btfspWBXfmj2/BM5iZWo=",
+                "CONTAINER_NAME":"raspberrypi-camera"
             }
         }
     ]

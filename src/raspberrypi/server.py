@@ -16,11 +16,10 @@ from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
 from logscreen import screen
 from opencheck import check as oc
 
-#Azure IoT Hubの接続文字列
-CONNECTION_STRING = os.getenv('CONNECTION_STRING', None)
-
 HOME = os.environ['HOME']#ホームディレクトリのパス
 
+#Azure IoT Hubの接続文字列
+CONNECTION_STRING = os.getenv('CONNECTION_STRING', None)
 #Azure Storage Containerの名前
 CONTAINER_NAME = os.getenv('CONTAINER_NAME', None)
 #Azure Storage Containerの接続文字列
@@ -186,4 +185,5 @@ if __name__ == "__main__":
             time.sleep(5)
 
     except KeyboardInterrupt:
-        screen.logWarning( "System stopped." )
+        print(" ")
+        screen.logWarning("system stop:"+str(KeyboardInterrupt))
