@@ -128,8 +128,11 @@ def UploadToAzureStrageContainer(filepath):
     try:
         blob_service_client = BlobServiceClient.from_connection_string(AZURE_STORAGE_CONTAINER_CONNECTION_STRING)
         container_client = blob_service_client.get_container_client(AZURE_STORAGE_CONTAINER_CONNECTION_STRING)
-        blob_client = container_client.get_blob_client(filepath)
+        blob_client = container_client.get_blob_client("pretdata")
+
         blob_client.delete_blob()#クラウド上のファイルを削除
+        screen.logOK("Delete old file in AzureStrageContainer")
+
         with open(filepath, "rb") as data:
             blob_client.upload_blob(data, blob_type="AppendBlob")#アップロード
 
