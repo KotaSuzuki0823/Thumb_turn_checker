@@ -4,6 +4,15 @@
 
 `pip install -r requirements.txt`
 
+## OpenCV
+`sudo apt-get install libatlas-base-dev`
+
+`sudo apt-get install libjasper-dev`
+
+`sudo apt-get install libqt4-test`
+
+[ラズパイでpython3にopencvを入れたらエラーが出た【対処法】](https://qiita.com/XM03/items/48463fd910470b226f22)
+
 ## 環境変数
 ### Azure App Service
 設定が必要なものは以下の3つ
