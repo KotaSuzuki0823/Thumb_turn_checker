@@ -21,7 +21,8 @@ CONNECTION_STRING = os.getenv('CONNECTION_STRING', None)
 
 HOME = os.environ['HOME']#ホームディレクトリのパス
 
-CONTAINER_NAME = "raspberrypi-camera"
+#Azure Storage Containerの名前
+CONTAINER_NAME = os.getenv('CONTAINER_NAME', None)
 #Azure Storage Containerの接続文字列
 AZURE_STORAGE_CONTAINER_CONNECTION_STRING = os.getenv('ASC_CONNECTION_STRING', None)
 
