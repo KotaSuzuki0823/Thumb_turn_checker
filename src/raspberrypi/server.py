@@ -25,7 +25,6 @@ AZURE_STORAGE_CONTAINER_CONNECTION_STRING = os.getenv('ASC_CONNECTION_STRING', N
 async def store_blob(blob_info, file_name):
     '''
     Azure Iot Hub用
-    Azure Storageの「$web」へアップロード
     アップロード先の変更はAzure Iot Hubポータルから行う
     '''
     try:
@@ -137,7 +136,7 @@ def main():
     pret = oc.PhotoImageMatching(photopath)
     screen.logOK("Successful photoImageMatching. (" + str(pret) + ")")
 
-    pretdatapath = HOME + "/pretdata"
+    pretdatapath = HOME + "/pretdata.json"
     oc.WritePret(pret, pretdatapath)
 
     loop = asyncio.get_event_loop()

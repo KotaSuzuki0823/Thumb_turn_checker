@@ -1,6 +1,6 @@
 import cv2
 import glob
-import logging
+import json
 import os
 import sys
 import requests
@@ -49,8 +49,9 @@ def WritePret(pret, path):
     try:
         with open(path, mode='w') as fp:
             time_now = datetime.datetime.now()
-            msg = str(pret) + "\n" + str(time_now.hour) + "\n" + str(time_now.minute)
-            fp.write(msg)
+            dic ={'pret':str(pret),'time':{'hour':str(time_now.hour), 'min':str(time_now.minute), 'sec':str(time_now.second)}}
+
+            fp.write(json.dumps(dic))
         
     except Exception as e:
         print(e)

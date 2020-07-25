@@ -17,14 +17,16 @@ from linebot.models import (
 URL = "https://api.line.me/v2/bot/message/multicast"
 app = Flask(__name__)
 
+prediction_key = os.getenv('PREDICTIONKEY', None)
+cvurl = os.getenv('CVURL', None)
+
 # 環境変数取得
 #LINE Messaging API
 channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
 channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', None)
 
-#Azure Costom Vision
-prediction_key = os.getenv('PREDICTIONKEY', None)
-cvurl = os.getenv('CVURL', None)
+main_image_path = os.getenv('MAIN_IMAGE', None)
+preview_image_path = os.getenv('PREVIEW_IMAGE', None)  # ダミー
 
 #画像の類似度判定のしきい値（スレッショルド）
 #類似度がしきい値を下回った場合ほぼ写真と教師画像が同じ（解錠状態）として判断
@@ -91,25 +93,28 @@ def handle_message(event):
 
         except Exception as e:
             print("Bad pretdata:\t",e)
+
+    elif getMessage == 'acv':
+        acv_result, acv_pret = getCustomVision()
+
+        if acv_result:
+            message = '鍵があいていますよ\n(類似度：' + str(acv_pret)+')'
+        else:
+            message = '鍵はしまっていますわ\n(類似度：' + str(acv_pret)+')'
+        replyMessageText(event, message)
+
     elif getMessage == '使い方':
         message = '施錠状態を確認します．私に「状態」と話しかけてみてください．\nまた，「写真」と発言されますと写真をお送りいたしますわ．'
         replyMessageText(event, message)
 
-    elif getMessage == 'なにこれ':
-        message = 'わたくしはサムターン確認くんです．\nおなたの家にあるサムターンを確認し，施錠状態をお知らせしますわ．'
-        replyMessageText(event, message)
-
     else :
-        message = 'あなたの家の鍵の状態を確認しますね'
+        message = 'わたくしはサムターン確認くんです．\nおなたの家にあるサムターンを確認し，施錠状態をお知らせしますわ．'
         replyMessageText(event, message)
 
 #画像の返信
 #@handler.add(MessageEvent, message=ImageMessage)
 def replyImage(event):
     ...
-    main_image_path = "https://thumbtuenphoto.z31.web.core.windows.net/camera/photo.jpg"
-    preview_image_path = "https://thumbtuenphoto.z31.web.core.windows.net/dummy.jpg"#ダミー
-
     # 画像の送信
     image_message = ImageSendMessage(
         original_content_url=main_image_path,
@@ -118,11 +123,9 @@ def replyImage(event):
 
     line_bot_api.reply_message(event.reply_token, image_message)
 
-def getCustomVision(imgurl):
+def getCustomVision(imgurl=main_image_path):
     '''
     Azure CustomVisionへアクセスする関数
-    鍵の施錠状態をうまく判別ができないため，使用する予定なし．
-    OpenCVで代用
     '''
     headers = {
         'content-type': 'application/json',
@@ -132,23 +135,23 @@ def getCustomVision(imgurl):
         "Url": imgurl
     }
     try:
+        print("Access >> Azure Custom Vision")
         response = requests.post(cvurl, data=json.dumps(body), headers=headers)
         response.raise_for_status()
     except:
         print("POST ERROR")
-        return  True, 0
+        return True, 0
 
     analysis = response.json()
-    name1, pred1 = analysis["predictions"][0]["tagName"], analysis["predictions"][0]["probability"]#Open
+    name1, pred1 = analysis["predictions"][0]["tagName"], analysis["predictions"][0]["probability"]  # Open
     print(name1, pred1)
-    name2, pred2 = analysis["predictions"][1]["tagName"], analysis["predictions"][1]["probability"]#Close
+    name2, pred2 = analysis["predictions"][1]["tagName"], analysis["predictions"][1]["probability"]  # Close
     print(name2, pred2)
 
     if pred1 >= pred2:
         return True, pred1
     else:
         return False, pred1
-
 '''
 メインサービス
 '''
