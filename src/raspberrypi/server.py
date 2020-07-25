@@ -117,7 +117,6 @@ def getPhoto(photopath):
     '''
     写真の撮影
     '''
-
     cmd = ["raspistill", "-t", "3000", "-o", photopath]
     screen.logOK("Run raspistill...")
     try:
@@ -138,6 +137,7 @@ def main():
 
     pretdatapath = HOME + "/pretdata.json"
     oc.WritePret(pret, pretdatapath)
+    screen.logOK("Saved pretdata at "+pretdatapath)
 
     loop = asyncio.get_event_loop()
     loop.run_until_complete(connectAndUploadToAzure(photopath))
@@ -183,5 +183,5 @@ if __name__ == "__main__":
             time.sleep(5)
 
     except KeyboardInterrupt:
-        print(" ")
+        print("\n")
         screen.logWarning("system stop:"+str(KeyboardInterrupt))
