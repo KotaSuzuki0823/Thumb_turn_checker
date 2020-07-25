@@ -145,6 +145,7 @@ def getCustomVision(imgurl=main_image_path):
     analysis = response.json()
     name1, pred1 = analysis["predictions"][0]["tagName"], analysis["predictions"][0]["probability"]  # Open
     print(name1, pred1)
+
     name2, pred2 = analysis["predictions"][1]["tagName"], analysis["predictions"][1]["probability"]  # Close
     print(name2, pred2)
 
