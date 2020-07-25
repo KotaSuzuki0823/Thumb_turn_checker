@@ -1,6 +1,3 @@
-'''
-Need to use "sudo"
-'''
 import subprocess
 import datetime
 import os
@@ -95,7 +92,7 @@ async def connectAndUploadToAzure(imgPath):
         await device_client.disconnect()
         screen.logOK("Disconnect the client")
     
-def UploadToAzureStrageContainer(filepath):
+async def UploadToAzureStrageContainer(filepath):
     '''
     Azure Storage Containerへファイルをアップロード
     filepath:アップロードするローカルファイルパス
@@ -119,7 +116,7 @@ def UploadToAzureStrageContainer(filepath):
 
 def getPhoto(photopath):
     '''
-    写真の撮影，類似度の取得
+    写真の撮影
     '''
 
     cmd = ["raspistill", "-t", "3000", "-o", photopath]
@@ -145,15 +142,17 @@ def main():
 
     loop = asyncio.get_event_loop()
     loop.run_until_complete(connectAndUploadToAzure(photopath))
-    UploadToAzureStrageContainer(pretdatapath)
+    loop.run_until_complete(UploadToAzureStrageContainer(pretdatapath))
 
     screen.logOK("finish")
 
 '''
 テスト用
 '''
-
 def maintest():
+    '''
+    テスト用
+    '''
     photopath = HOME + "/photo.jpg"
 
     pret = oc.PhotoImageMatching(photopath)

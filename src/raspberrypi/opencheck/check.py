@@ -1,5 +1,4 @@
 import cv2
-from docopt import docopt
 import glob
 import logging
 import os
