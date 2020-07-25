@@ -72,7 +72,7 @@ def handle_message(event):
     getMessage = event.message.text  # ユーザが送信したメッセージ(event.message.text)を取得
 
     if getMessage == '写真':
-        message = '写真を送りますわ'
+        message = '写真を送りいたしますわ'
         replyImage(event)
         replyMessageText(event, message)
         
@@ -82,15 +82,18 @@ def handle_message(event):
 
         try:
             data = [s.strip() for s in data]
-                #data[0]：特徴点距離（類似度，低い程似ている），data[1]：時，data[2]：分
+            #data[0]：特徴点距離（類似度，低い程似ている），data[1]：時，data[2]：分
             if float(data[0]) < float(IMG_THRESHOLD):
-                message = '鍵があいていますわ\n(類似度：'+str(data[0])+'，'+str(data[1])+'時'+str(data[2])+'分現在)'
+                message = '鍵があいていますよ\n(類似度：'+str(data[0])+'，'+str(data[1])+'時'+str(data[2])+'分現在)'
             else:
                 message = '鍵はしまっていますわ\n(類似度：'+str(data[0])+'，'+str(data[1])+'時'+str(data[2])+'分現在)'
             replyMessageText(event, message)
 
         except Exception as e:
             print("Bad pretdata:\t",e)
+    elif getMessage == '使い方':
+        message = '施錠状態を確認します．私に「状態」と話しかけてみてください．\nまた，「写真」と発言されますと写真をお送りいたしますわ．'
+        replyMessageText(event, message)
 
     elif getMessage == 'なにこれ':
         message = 'わたくしはサムターン確認くんです．\nおなたの家にあるサムターンを確認し，施錠状態をお知らせしますわ．'
@@ -115,12 +118,12 @@ def replyImage(event):
 
     line_bot_api.reply_message(event.reply_token, image_message)
 
-'''
-Azure CustomVisionへアクセスする関数
-鍵の施錠状態をうまく判別ができないため，使用する予定なし．
-OpenCVで代用
-'''
 def getCustomVision(imgurl):
+    '''
+    Azure CustomVisionへアクセスする関数
+    鍵の施錠状態をうまく判別ができないため，使用する予定なし．
+    OpenCVで代用
+    '''
     headers = {
         'content-type': 'application/json',
         'Prediction-Key': prediction_key
