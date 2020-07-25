@@ -2,9 +2,11 @@
 ## pip
 実行時に必要となるパッケージは以下のコマンドでインストール
 
-`pip install -r requirements.txt`
+`pip3 install -r requirements.txt`
 
 ## OpenCV
+OpenCVに必要な外部パッケージが無い（エラーが出た）場合はラズパイへインストール
+
 `sudo apt-get install libatlas-base-dev`
 
 `sudo apt-get install libjasper-dev`
@@ -44,5 +46,27 @@ IotHub用拡張パッケージの導入（初回のみ）
 `az storage account show-connection-string --name [storage name]`
 
 [storage name]：ストレージアカウントの名前
+
+#### 環境変数の設定
+`./bash_profile`を編集<br>
+新規ファイルを作成（.bash_profileが存在しない場合）<br>
+`touch ~/.bash_profile`
+
+.bash_profileに以下を追記
+
+`ASC_CONNECTION_STRING={Azure Storage account connection_string}`<br>
+`CONNECTION_STRING={IoT Hub connection_string}`<br>
+`CONTAINER_NAME={your_container_name}`<br>
+
+.bash_profileの再読み込み
+
+`source ~/.bash_profile`
+
+
+
+
+
+
+
 
 
