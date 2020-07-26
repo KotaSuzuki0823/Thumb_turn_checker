@@ -174,7 +174,7 @@ if __name__ == "__main__":
 
         if "-t" in args:
             screen.logWarning("Running TEST")
-            maintest()
+            main()
         else:
             schedule.every(5).minutes.do(main)
 
