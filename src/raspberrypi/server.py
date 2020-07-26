@@ -132,16 +132,16 @@ def main():
     photopath = HOME + "/photo.jpg"
     getPhoto(photopath)
 
-    pret = oc.PhotoImageMatching(photopath)
-    screen.logOK("Successful photoImageMatching. (" + str(pret) + ")")
+    #pret = oc.PhotoImageMatching(photopath)
+    #screen.logOK("Successful photoImageMatching. (" + str(pret) + ")")
 
-    pretdatapath = HOME + "/pretdata.json"
-    oc.WritePret(pret, pretdatapath)
-    screen.logOK("Saved pretdata at "+pretdatapath)
+    #pretdatapath = HOME + "/pretdata.json"
+    #oc.WritePret(pret, pretdatapath)
+    #screen.logOK("Saved pretdata at "+pretdatapath)
 
     loop = asyncio.get_event_loop()
     loop.run_until_complete(connectAndUploadToAzure(photopath))
-    loop.run_until_complete(UploadToAzureStrageContainer(pretdatapath))
+    #loop.run_until_complete(UploadToAzureStrageContainer(pretdatapath))
 
     screen.logOK("finish")
 
