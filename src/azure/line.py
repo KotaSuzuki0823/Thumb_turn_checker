@@ -77,7 +77,20 @@ def handle_message(event):
         message = '写真を送りいたしますわ'
         replyImage(event)
         replyMessageText(event, message)
-        
+
+    elif getMessage == '状態':
+        acv_hight_pred, acv_hight_name, acv_low_pred = getCustomVision()
+
+        if acv_hight_name == "Open":
+            message = '鍵があいていますよ\n(類似度：' + str(acv_hight_pred)+')'
+        else:
+            message = '鍵はしまっていますわ\n(類似度：' + str(acv_hight_pred)+')'
+        replyMessageText(event, message)
+
+    elif getMessage == '使い方':
+        message = '施錠状態を確認します．私に「状態」と話しかけてみてください．\nまた，「写真」と発言されますと写真をお送りいたしますわ．'
+        replyMessageText(event, message)
+
     elif getMessage == 'cv':
         with open(f"/var/blob/pretdata", mode="r") as fp:
             data = fp.readlines()
@@ -93,19 +106,6 @@ def handle_message(event):
 
         except Exception as e:
             print("Bad pretdata:\t",e)
-
-    elif getMessage == '状態':
-        acv_hight_pred, acv_hight_name, acv_low_pred = getCustomVision()
-
-        if acv_hight_name == "Open":
-            message = '鍵があいていますよ\n(類似度：' + str(acv_hight_pred)+')'
-        else:
-            message = '鍵はしまっていますわ\n(類似度：' + str(acv_hight_pred)+')'
-        replyMessageText(event, message)
-
-    elif getMessage == '使い方':
-        message = '施錠状態を確認します．私に「状態」と話しかけてみてください．\nまた，「写真」と発言されますと写真をお送りいたしますわ．'
-        replyMessageText(event, message)
 
     else :
         message = 'わたくしはサムターン確認くんです．\nおなたの家にあるサムターンを確認し，施錠状態をお知らせしますわ．'

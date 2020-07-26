@@ -11,7 +11,7 @@ from azure.core.exceptions import AzureError
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
 
 from logscreen import screen
-from opencheck import check as oc
+#from opencheck import check as oc
 
 HOME = os.environ['HOME']#ホームディレクトリのパス
 
