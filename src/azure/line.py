@@ -78,7 +78,7 @@ def handle_message(event):
         replyImage(event)
         replyMessageText(event, message)
         
-    elif getMessage == '状態':
+    elif getMessage == 'cv':
         with open(f"/var/blob/pretdata", mode="r") as fp:
             data = fp.readlines()
 
@@ -94,13 +94,13 @@ def handle_message(event):
         except Exception as e:
             print("Bad pretdata:\t",e)
 
-    elif getMessage == 'acv':
-        acv_result, acv_pret = getCustomVision()
+    elif getMessage == '状態':
+        acv_hight_pred, acv_hight_name, acv_low_pred = getCustomVision()
 
-        if acv_result:
-            message = '鍵があいていますよ\n(類似度：' + str(acv_pret)+')'
+        if acv_hight_name == "Open":
+            message = '鍵があいていますよ\n(類似度：' + str(acv_hight_pred)+')'
         else:
-            message = '鍵はしまっていますわ\n(類似度：' + str(acv_pret)+')'
+            message = '鍵はしまっていますわ\n(類似度：' + str(acv_hight_pred)+')'
         replyMessageText(event, message)
 
     elif getMessage == '使い方':
@@ -143,16 +143,13 @@ def getCustomVision(imgurl=main_image_path):
         return True, 0
 
     analysis = response.json()
-    name1, pred1 = analysis["predictions"][0]["tagName"], analysis["predictions"][0]["probability"]  # Open
+    name1, pred1 = analysis["predictions"][0]["tagName"], analysis["predictions"][0]["probability"]  # 識別スコアが最も高い方
     print(name1, pred1)
 
-    name2, pred2 = analysis["predictions"][1]["tagName"], analysis["predictions"][1]["probability"]  # Close
+    name2, pred2 = analysis["predictions"][1]["tagName"], analysis["predictions"][1]["probability"]  # 識別スコアが低い方
     print(name2, pred2)
 
-    if pred1 >= pred2:
-        return True, pred1
-    else:
-        return False, pred1
+    return pred1, name1, pred2
 '''
 メインサービス
 '''
