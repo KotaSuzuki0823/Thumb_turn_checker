@@ -5,6 +5,7 @@ import asyncio
 import schedule
 import time
 import sys
+import json
 
 from azure.iot.device.aio import IoTHubDeviceClient
 from azure.core.exceptions import AzureError
@@ -128,6 +129,22 @@ def getPhoto(photopath):
     
     screen.logOK("Successful photo shoot. time:" + takePhotoTime.strftime('%Y/%m/%d %H:%M:%S')+"file:"+photopath)
 
+
+def WritePhotoDataJSON(jsonpath,photopath):
+    '''
+    写真の書き込み時間（時，分）を出力
+    '''
+    try:
+        with open(jsonpath, mode='w') as fp:
+            time_now = datetime.datetime.now()
+            dic = {'path': str(photopath),
+                   'time': {'hour': str(time_now.hour), 'min': str(time_now.minute), 'sec': str(time_now.second)}}
+
+            fp.write(json.dumps(dic))
+
+    except Exception as e:
+        screen.logFatal(e)
+
 def main():
     photopath = HOME + "/photo.jpg"
     getPhoto(photopath)
@@ -135,13 +152,17 @@ def main():
     #pret = oc.PhotoImageMatching(photopath)
     #screen.logOK("Successful photoImageMatching. (" + str(pret) + ")")
 
+    jsonpath = HOME + "/pretdata.json"
+    WritePhotoDataJSON(jsonpath,photopath)
+    screen.logOK("wrote json.")
+
     #pretdatapath = HOME + "/pretdata.json"
     #oc.WritePret(pret, pretdatapath)
     #screen.logOK("Saved pretdata at "+pretdatapath)
 
     loop = asyncio.get_event_loop()
     loop.run_until_complete(connectAndUploadToAzure(photopath))
-    #loop.run_until_complete(UploadToAzureStrageContainer(pretdatapath))
+    loop.run_until_complete(UploadToAzureStrageContainer(jsonpath))
 
     screen.logOK("finish")
 
