@@ -101,13 +101,11 @@ async def UploadToAzureStrageContainer(filepath):
     try:
         blob_service_client = BlobServiceClient.from_connection_string(AZURE_STORAGE_CONTAINER_CONNECTION_STRING)
         container_client = blob_service_client.get_container_client(CONTAINER_NAME)
-        blob_client = container_client.get_blob_client("pretdata.json")
-
-        blob_client.delete_blob()#クラウド上のファイルを削除
-        screen.logOK("Deleted old pretdata file in AzureStrageContainer")
-
+        # Upload the created file, use local_file_name for the blob name
+        blob_client = blob_service_client.get_blob_client(
+            container=CONTAINER_NAME, blob='pretdata.json')
         with open(filepath, "rb") as data:
-            blob_client.upload_blob(data, blob_type="AppendBlob")#アップロード
+            blob_client.upload_blob(data)
 
         screen.logOK("Uploaded file("+ filepath +") to AzureStrageContainer")
 
