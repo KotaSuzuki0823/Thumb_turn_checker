@@ -79,12 +79,15 @@ def handle_message(event):
         replyMessageText(event, message)
 
     elif getMessage == '状態':
+        with open(f"/var/blob/pretdata.json", mode="r") as fp:
+            jsondata = json.load(fp)
+
         acv_hight_pred, acv_hight_name, acv_low_pred = getCustomVision()
 
         if acv_hight_name == "Open":
-            message = '鍵があいていますよ\n(類似度：' + str(acv_hight_pred)+')'
+            message = '鍵があいていますよ\n(類似度：' + str(acv_hight_pred)+'，'+str(jsondata['time']['hour'])+'時'+str(jsondata['time']['min'])+'分現在)'
         else:
-            message = '鍵はしまっていますわ\n(類似度：' + str(acv_hight_pred)+')'
+            message = '鍵はしまっていますわ\n(類似度：' + str(acv_hight_pred)+'，'+str(jsondata['time']['hour'])+'時'+str(jsondata['time']['min'])+'分現在)'
         replyMessageText(event, message)
 
     elif getMessage == '使い方':
