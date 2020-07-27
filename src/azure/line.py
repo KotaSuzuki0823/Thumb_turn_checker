@@ -13,14 +13,16 @@ from linebot.exceptions import (
 from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage, ImageSendMessage, ImageMessage
 )
+from azure.storage.blob import BlobServiceClient
 
 URL = "https://api.line.me/v2/bot/message/multicast"
 app = Flask(__name__)
 
+# 環境変数取得
+#Azure CustomVision
 prediction_key = os.getenv('PREDICTIONKEY', None)
 cvurl = os.getenv('CVURL', None)
 
-# 環境変数取得
 #LINE Messaging API
 channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
 channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', None)
@@ -31,6 +33,11 @@ preview_image_path = os.getenv('PREVIEW_IMAGE', None)  # ダミー
 #画像の類似度判定のしきい値（スレッショルド）
 #類似度がしきい値を下回った場合ほぼ写真と教師画像が同じ（解錠状態）として判断
 IMG_THRESHOLD = os.getenv('IMG_THRESHOLD', None)
+
+#Azure Storage Containerの名前
+CONTAINER_NAME = os.getenv('CONTAINER_NAME', None)
+#Azure Storage Containerの接続文字列
+AZURE_STORAGE_CONTAINER_CONNECTION_STRING = os.getenv('ASC_CONNECTION_STRING', None)
 
 if channel_secret is None:
     print('Specify LINE_CHANNEL_SECRET as environment variable.')
@@ -73,46 +80,8 @@ def replyMessageText(event, message):
 def handle_message(event):
     getMessage = event.message.text  # ユーザが送信したメッセージ(event.message.text)を取得
 
-    if getMessage == '写真':
-        message = '写真を送りいたしますわ'
-        replyImage(event)
-        replyMessageText(event, message)
-
-    elif getMessage == '状態':
-        with open(f"/var/blob/pretdata.json", mode="r") as fp:
-            jsondata = json.load(fp)
-
-        acv_hight_pred, acv_hight_name, acv_low_pred = getCustomVision()
-
-        if acv_hight_name == "Open":
-            message = '鍵があいていますよ\n(類似度：' + str(acv_hight_pred)+'，'+str(jsondata['time']['hour'])+'時'+str(jsondata['time']['min'])+'分現在)'
-        else:
-            message = '鍵はしまっていますわ\n(類似度：' + str(acv_hight_pred)+'，'+str(jsondata['time']['hour'])+'時'+str(jsondata['time']['min'])+'分現在)'
-        replyMessageText(event, message)
-
-    elif getMessage == '使い方':
-        message = '施錠状態を確認します．私に「状態」と話しかけてみてください．\nまた，「写真」と発言されますと写真をお送りいたしますわ．'
-        replyMessageText(event, message)
-
-    elif getMessage == 'cv':
-        with open(f"/var/blob/pretdata", mode="r") as fp:
-            data = fp.readlines()
-
-        try:
-            data = [s.strip() for s in data]
-            #data[0]：特徴点距離（類似度，低い程似ている），data[1]：時，data[2]：分
-            if float(data[0]) < float(IMG_THRESHOLD):
-                message = '鍵があいていますよ\n(類似度：'+str(data[0])+'，'+str(data[1])+'時'+str(data[2])+'分現在)'
-            else:
-                message = '鍵はしまっていますわ\n(類似度：'+str(data[0])+'，'+str(data[1])+'時'+str(data[2])+'分現在)'
-            replyMessageText(event, message)
-
-        except Exception as e:
-            print("Bad pretdata:\t",e)
-
-    else :
-        message = 'わたくしはサムターン確認くんです．\nおなたの家にあるサムターンを確認し，施錠状態をお知らせしますわ．'
-        replyMessageText(event, message)
+    message = HandleMessageEventSwitch(event, getMessage)
+    replyMessageText(event, message)
 
 #画像の返信
 #@handler.add(MessageEvent, message=ImageMessage)
@@ -125,6 +94,38 @@ def replyImage(event):
     )
 
     line_bot_api.reply_message(event.reply_token, image_message)
+
+def HandleMessageEventSwitch(event, getMessage):
+    '''
+    取得したメッセージから応答処理を実行
+    :getMessage: 受信したメッセージ
+    :return:
+    '''
+    if getMessage == '写真':
+        message = '写真を送りいたしますわ'
+        replyImage(event)
+
+    elif getMessage == '状態':
+        filepath = f"pretdata.json"
+        DownloadFlomBlob('pretdata.json', filepath)
+
+        with open(filepath, mode="r") as fp:
+            jsondata = json.load(fp)
+
+        acv_hight_pred, acv_hight_name, acv_low_pred = getCustomVision()
+
+        if acv_hight_name == "Open":
+            message = '鍵があいていますよ\n(類似度：' + str(acv_hight_pred)+'，'+str(jsondata['time']['hour'])+'時'+str(jsondata['time']['min'])+'分現在)'
+        else:
+            message = '鍵はしまっていますわ\n(類似度：' + str(acv_hight_pred)+'，'+str(jsondata['time']['hour'])+'時'+str(jsondata['time']['min'])+'分現在)'
+
+    elif getMessage == '使い方':
+        message = '施錠状態を確認します．私に「状態」と話しかけてみてください．\nまた，「写真」と発言されますと写真をお送りいたしますわ．'
+
+    else :
+        message = 'わたくしはサムターン確認くんです．\nおなたの家にあるサムターンを確認し，施錠状態をお知らせしますわ．'
+
+    return message
 
 def getCustomVision(imgurl=main_image_path):
     '''
@@ -153,13 +154,24 @@ def getCustomVision(imgurl=main_image_path):
     print(name2, pred2)
 
     return pred1, name1, pred2
+
+def DownloadFlomBlob(targetfile,filepath):
+    '''
+    Azure BLOBからファイルをダウンロード
+    :param targetfile: ダウンロードするファイル
+    :param filepath: 保存先
+    :return:
+    '''
+    blob_service_client = BlobServiceClient.from_connection_string(AZURE_STORAGE_CONTAINER_CONNECTION_STRING)
+    blob_client = blob_service_client.get_blob_client(container=CONTAINER_NAME, blob=targetfile)
+
+    with open(filepath, "wb") as my_blob:
+        my_blob.writelines([blob_client.download_blob().readall()])
+
 '''
 メインサービス
 '''
-def runservice():
+if __name__ == "__main__":
     # app.run()
     port = int(os.getenv("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
-
-if __name__ == "__main__":
-    runservice()
