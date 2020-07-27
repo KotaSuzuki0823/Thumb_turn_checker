@@ -106,7 +106,7 @@ async def UploadToAzureStrageContainer(filepath):
         generator = container_client.list_blobs()
         for blob in generator:
             if blob.name == 'pretdata.json':
-                blob_client = container_client.get_blob_client("pretdata")
+                blob_client = container_client.get_blob_client("pretdata.json")
                 blob_client.delete_blob()  # クラウド上のファイルを削除
                 screen.logOK("OLD pretdata.json is deleted")
                 break
