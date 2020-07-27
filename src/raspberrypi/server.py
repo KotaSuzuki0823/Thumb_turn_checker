@@ -101,7 +101,7 @@ async def UploadToAzureStrageContainer(filepath):
     try:
         blob_service_client = BlobServiceClient.from_connection_string(AZURE_STORAGE_CONTAINER_CONNECTION_STRING)
         container_client = blob_service_client.get_container_client(CONTAINER_NAME)
-        blob_client = container_client.get_blob_client("pretdata")
+        blob_client = container_client.get_blob_client("pretdata.json")
 
         blob_client.delete_blob()#クラウド上のファイルを削除
         screen.logOK("Deleted old pretdata file in AzureStrageContainer")
@@ -166,27 +166,6 @@ def main():
 
     screen.logOK("finish")
 
-'''
-テスト用
-'''
-def maintest():
-    '''
-    テスト用
-    '''
-    photopath = HOME + "/photo.jpg"
-
-    pret = oc.PhotoImageMatching(photopath)
-    screen.logOK("Successful photoImageMatching. (" + str(pret) + ")")
-
-    pretdatapath = HOME + "/pretdata"
-    oc.WritePret(pret, pretdatapath)
-    screen.logOK("Successful output pretdata. >> " + pretdatapath)
-
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(connectAndUploadToAzure(photopath))
-    UploadToAzureStrageContainer(pretdatapath)
-
-    screen.logOK("finish")
 if __name__ == "__main__":
     # run every 5min
     args = sys.argv
@@ -196,6 +175,7 @@ if __name__ == "__main__":
         if "-t" in args:
             screen.logWarning("Running TEST")
             main()
+            exit(0)
         else:
             schedule.every(5).minutes.do(main)
 
