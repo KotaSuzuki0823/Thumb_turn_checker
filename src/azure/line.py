@@ -90,7 +90,7 @@ def replyImage(event):
     # 画像の送信
     image_message = ImageSendMessage(
         original_content_url=main_image_path,
-        preview_image_url=preview_image_path
+        #preview_image_url=preview_image_path
     )
 
     line_bot_api.reply_message(event.reply_token, image_message)
@@ -120,7 +120,7 @@ def HandleMessageEventSwitch(event, getMessage):
             message = '鍵はしまっていますわ\n(類似度：' + str(acv_hight_pred)+'，'+str(jsondata['time']['hour'])+'時'+str(jsondata['time']['min'])+'分現在)'
 
     elif getMessage == '使い方':
-        message = '施錠状態を確認します．私に「状態」と話しかけてみてください．\nまた，「写真」と発言されますと写真をお送りいたしますわ．'
+        message = '施錠状態を確認します．私に「状態」と話しかけてみてください．'
 
     else :
         message = 'わたくしはサムターン確認くんです．\nおなたの家にあるサムターンを確認し，施錠状態をお知らせしますわ．'
